@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="tr"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Küre Macerası 3D</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Color+Emoji&display=swap">
+<style>
+:root{--panel:rgba(8,18,36,.92);--fg:#eaf4ff;--mint:#6ee7b7;--amber:#ffc14d;--red:#ff6b81;--btn:#1d3556;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--panel:rgba(8,18,36,.94)}}
+:root[data-theme="dark"]{--panel:rgba(8,18,36,.94)}
+html,body{height:100%;margin:0;background:#050b16;color:var(--fg);font-family:'Outfit',system-ui,sans-serif;overflow:hidden;touch-action:none;user-select:none}
+canvas#c{position:fixed;inset:0;width:100%;height:100%;display:block;cursor:grab}
+#top{position:fixed;left:0;right:0;top:env(safe-area-inset-top,0px);display:flex;justify-content:space-between;align-items:flex-start;gap:10px;padding:14px 18px;pointer-events:none;text-shadow:0 0 10px #000}
+#top>div{font-size:15px;opacity:.9;min-width:54px}#sc{text-align:right}
+#ask{text-align:center;font-size:15px;opacity:1!important}#ask b{display:block;font-size:30px;font-weight:800;color:var(--amber);line-height:1.15}
+#msg{position:fixed;left:0;right:0;top:calc(env(safe-area-inset-top,0px) + 92px);text-align:center;font-weight:800;font-size:18px;pointer-events:none;text-shadow:0 0 10px #000;min-height:24px;padding:0 16px}
+#msg.ok{color:var(--mint)}#msg.bad{color:var(--red)}#msg.info{color:var(--amber)}
+#bar{position:fixed;left:0;right:0;bottom:calc(16px + env(safe-area-inset-bottom,0px));display:flex;justify-content:center;gap:10px}
+button{font:inherit;font-weight:800;border:0;border-radius:8px;background:var(--btn);color:var(--fg);cursor:pointer;min-height:44px;padding:0 18px}
+button:active{filter:brightness(1.3)}button:focus-visible{outline:3px solid var(--mint);outline-offset:2px}
+#ov{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(3,8,18,.5)}
+#card{background:var(--panel);border-top:5px solid var(--mint);border-radius:8px;padding:26px 30px;max-width:340px}
+h1{margin:0 0 8px;font-size:34px;font-weight:800;color:var(--mint)}p{margin:6px 0;line-height:1.5;font-size:15px}
+#go,#go2{display:block;width:100%;margin-top:10px;background:var(--mint);color:#04261b;font-size:17px;padding:10px 16px}#go2{background:var(--amber);color:#2a1a00}
+#fcm{position:fixed;inset:0;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(3,8,18,.72)}
+#fcc{background:var(--panel);border-top:5px solid var(--amber);border-radius:8px;padding:22px 24px;text-align:center;max-width:340px}
+#fq{margin:0 0 14px;font-size:17px;line-height:1.35}#fq b{font-size:26px;color:var(--amber)}
+#fo{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+button.flag{font-family:'Noto Color Emoji','Apple Color Emoji','Segoe UI Emoji',sans-serif;font-size:58px;line-height:1.2;padding:8px 0;background:#162c4d;min-height:84px}
+button.flag.good{background:var(--mint)}button.flag.badf{background:var(--red)}
+button:disabled{opacity:.45;cursor:default}
+#nm{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(76px + env(safe-area-inset-bottom,0px));display:none;grid-template-columns:1fr 1fr;gap:8px;width:min(440px,calc(100vw - 24px))}
+#nm button{font-size:15px;min-height:44px;padding:6px 10px;line-height:1.2;background:#1d3556}
+#nm button.good{background:var(--mint);color:#04261b;opacity:1}#nm button.badf{background:var(--red);color:#2a0008}
+</style></head><body>
+<canvas id="c"></canvas>
+<div id="top"><div id="rd"></div><div id="ask"><span id="al">Bul</span><b id="tg">&nbsp;</b></div><div id="sc"></div></div>
+<div id="msg"></div>
+<div id="nm"></div>
+<div id="bar"><button id="fc">Bayrak jokeri (3)</button><button id="skip">Pas</button><button id="rv">Görünümü sıfırla</button></div>
+<div id="fcm"><div id="fcc"><p id="fq"></p><div id="fo"></div></div></div>
+<div id="ov"><div id="card"><h1 id="t">Küre Macerası</h1><p id="m">Küreyi döndür ve istenen ülkeye tıkla. On tur var: ilk denemede doğru bilirsen 100 puan, her yanlışta daha az; üç yanlıştan sonra cevap gösterilir. Her yanlış tahmin 1 (komşu) ile 10 (çok uzak) arasında bir yakınlık puanı verir ve ülke sıcak kırmızıdan soğuk maviye doğru renklenir.</p><p>Emin değil misin? <b>3 bayrak jokerin</b> var: dört bayrak arasından doğrusunu seçersen ülke bulunmuş sayılır. Hiç tahmin yapmadan kullanırsan 100, bir tahminden sonra 60, iki tahminden sonra 30 puan alırsın. Yanlış seçersen tur kaybedilir.</p><p><b>Döndür</b> sürükle<br><b>Yakınlaştır</b> tekerlek veya iki parmak<br><b>Cevapla</b> ülkeye tıkla veya dokun</p><p><b>İki oyun şekli var.</b> <i>Bul</i>: sana bir ülke adı verilir, küre üzerinde o ülkeye tıklarsın. <i>Adlandır</i>: küre üzerinde bir ülke vurgulanır, adını altı seçenek arasından seçersin. Puanlama ve bayrak jokerleri ikisinde de aynı.</p><button id="go">Oyna: ülkeyi bul</button><button id="go2">Oyna: ülkeyi adlandır</button></div></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/datamaps/0.5.9/datamaps.all.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+const $=id=>document.getElementById(id),TW=2048,TH=1024,ROUNDS=10,PTS=[100,60,30],PI=Math.PI;
+const SKIP=new Set(['ATA','ATF','FLK','GUF','PRI','NCL','PSE','ESH','-99']);
+let C=[],pool=[],states=new Map(),order=[],q=0,score=0,att=0,tgt=-1,st='ready',busy=false,best=0,goal=null,mode='find';
+const KEY=()=>'gq_tr_best'+(mode==='name'?'_name':'');
+function fail(){$('t').textContent='Harita verisi yüklenemedi';$('m').textContent='Harita kütüphanesi yüklenemedi, bu yüzden küre çizilemiyor. Lütfen sayfayı yenile.';$('go').style.display='none';$('go2').style.display='none'}
+const tex=document.createElement('canvas');tex.width=TW;tex.height=TH;const ctx=tex.getContext('2d');
+const idc=document.createElement('canvas');idc.width=TW;idc.height=TH;const ictx=idc.getContext('2d',{willReadFrequently:true});
+const TR=Object.fromEntries('AFG=Afganistan|AGO=Angola|ALB=Arnavutluk|ARE=Birleşik Arap Emirlikleri|ARG=Arjantin|ARM=Ermenistan|AUS=Avustralya|AUT=Avusturya|AZE=Azerbaycan|BDI=Burundi|BEL=Belçika|BEN=Benin|BFA=Burkina Faso|BGD=Bangladeş|BGR=Bulgaristan|BHS=Bahamalar|BIH=Bosna-Hersek|BLR=Belarus|BLZ=Belize|BOL=Bolivya|BRA=Brezilya|BRN=Brunei|BTN=Butan|BWA=Botsvana|CAF=Orta Afrika Cumhuriyeti|CAN=Kanada|CHE=İsviçre|CHL=Şili|CHN=Çin|CIV=Fildişi Sahili|CMR=Kamerun|COD=Kongo Demokratik Cumhuriyeti|COG=Kongo Cumhuriyeti|COL=Kolombiya|CRI=Kosta Rika|CUB=Küba|CYP=Kıbrıs|CZE=Çekya|DEU=Almanya|DJI=Cibuti|DNK=Danimarka|DOM=Dominik Cumhuriyeti|DZA=Cezayir|ECU=Ekvador|EGY=Mısır|ERI=Eritre|ESP=İspanya|EST=Estonya|ETH=Etiyopya|FIN=Finlandiya|FJI=Fiji|FLK=Falkland Adaları|FRA=Fransa|GAB=Gabon|GBR=Birleşik Krallık|GEO=Gürcistan|GHA=Gana|GIN=Gine|GMB=Gambiya|GNB=Gine-Bissau|GNQ=Ekvator Ginesi|GRC=Yunanistan|GRL=Grönland|GTM=Guatemala|GUF=Fransız Guyanası|GUY=Guyana|HND=Honduras|HRV=Hırvatistan|HTI=Haiti|HUN=Macaristan|IDN=Endonezya|IND=Hindistan|IRL=İrlanda|IRN=İran|IRQ=Irak|ISL=İzlanda|ISR=İsrail|ITA=İtalya|JAM=Jamaika|JOR=Ürdün|JPN=Japonya|KAZ=Kazakistan|KEN=Kenya|KGZ=Kırgızistan|KHM=Kamboçya|KOR=Güney Kore|KWT=Kuveyt|LAO=Laos|LBN=Lübnan|LBR=Liberya|LBY=Libya|LKA=Sri Lanka|LSO=Lesotho|LTU=Litvanya|LUX=Lüksemburg|LVA=Letonya|MAR=Fas|MDA=Moldova|MDG=Madagaskar|MEX=Meksika|MKD=Kuzey Makedonya|MLI=Mali|MMR=Myanmar|MNE=Karadağ|MNG=Moğolistan|MOZ=Mozambik|MRT=Moritanya|MWI=Malavi|MYS=Malezya|NAM=Namibya|NCL=Yeni Kaledonya|NER=Nijer|NGA=Nijerya|NIC=Nikaragua|NLD=Hollanda|NOR=Norveç|NPL=Nepal|NZL=Yeni Zelanda|OMN=Umman|PAK=Pakistan|PAN=Panama|PER=Peru|PHL=Filipinler|PNG=Papua Yeni Gine|POL=Polonya|PRI=Porto Riko|PRK=Kuzey Kore|PRT=Portekiz|PRY=Paraguay|PSE=Filistin|QAT=Katar|ROU=Romanya|RUS=Rusya|RWA=Ruanda|SAU=Suudi Arabistan|SDN=Sudan|SEN=Senegal|SLB=Solomon Adaları|SLE=Sierra Leone|SLV=El Salvador|SRB=Sırbistan|SSD=Güney Sudan|SUR=Surinam|SVK=Slovakya|SVN=Slovenya|SWE=İsveç|SWZ=Esvatini|SYR=Suriye|TCD=Çad|TGO=Togo|THA=Tayland|TJK=Tacikistan|TKM=Türkmenistan|TLS=Doğu Timor|TTO=Trinidad ve Tobago|TUN=Tunus|TUR=Türkiye|TWN=Tayvan|TZA=Tanzanya|UGA=Uganda|UKR=Ukrayna|URY=Uruguay|USA=Amerika Birleşik Devletleri|UZB=Özbekistan|VEN=Venezuela|VNM=Vietnam|VUT=Vanuatu|YEM=Yemen|ZAF=Güney Afrika|ZMB=Zambiya|ZWE=Zimbabve|ESH=Batı Sahra'.split('|').map(x=>x.split('='))),TRN={'Kosovo':'Kosova','Northern Cyprus':'Kuzey Kıbrıs','Somaliland':'Somaliland'};
+function build(){
+  const T=Datamap.prototype.worldTopo,[sx,sy]=T.transform.scale,[tx,ty]=T.transform.translate;
+  const arcs=T.arcs.map(a=>{let x=0,y=0;return a.map(p=>[(x+=p[0])*sx+tx,(y+=p[1])*sy+ty])});
+  const ring=ix=>{let o=[];for(const i of ix){const a=i<0?arcs[~i].slice().reverse():arcs[i];o=o.concat(o.length?a.slice(1):a)}return o};
+  T.objects.world.geometries.forEach(g=>{
+    if(g.id==='ATA')return;
+    const polys=g.type==='Polygon'?[g.arcs]:g.arcs,path=new Path2D(),vs=[];let best=null,area=0;
+    for(const poly of polys)poly.forEach((r,ri)=>{
+      const pts=ring(r);let x0=1e9,x1=-1e9,y0=1e9,y1=-1e9;
+      const xs=[],ys=[];let off=0,prev=null;
+      pts.forEach(p=>{let x=(p[0]+180)/360*TW+off;if(prev!==null){if(x-prev>TW/2){off-=TW;x-=TW}else if(prev-x>TW/2){off+=TW;x+=TW}}prev=x;xs.push(x);ys.push((90-p[1])/180*TH);
+        const lo=p[0]*PI/180,la=p[1]*PI/180;vs.push(Math.cos(la)*Math.cos(lo),Math.cos(la)*Math.sin(lo),Math.sin(la));
+        const lon=x/TW*360-180;x0=Math.min(x0,lon);x1=Math.max(x1,lon);y0=Math.min(y0,p[1]);y1=Math.max(y1,p[1])});
+      for(const o of [-TW,0,TW]){xs.forEach((x,k)=>k?path.lineTo(x+o,ys[k]):path.moveTo(x+o,ys[k]));path.closePath()}
+      if(ri===0){const a=(x1-x0)*(y1-y0);area+=a;if(!best||a>best.a)best={a,lon:(x0+x1)/2,lat:(y0+y1)/2}}
+    });
+    const i=C.length,n=i+1;
+    C.push({id:g.id,name:TR[g.id]||TRN[g.properties.name]||g.properties.name,path,v:new Float32Array(vs),lon:best.lon,lat:best.lat,col:'hsl('+(150+(i*37)%50)+',34%,'+(26+(i*13)%11)+'%)'});
+    ictx.fillStyle='rgb('+(n&255)+','+(n>>8)+',0)';ictx.fill(path,'evenodd');
+    if(!SKIP.has(g.id)&&area>=1.5)pool.push(i);
+  });
+}
+const A2=Object.fromEntries('AFGAF AGOAO ALBAL AREAE ARGAR ARMAM AUSAU AUTAT AZEAZ BDIBI BELBE BENBJ BFABF BGDBD BGRBG BHSBS BIHBA BLRBY BLZBZ BOLBO BRABR BRNBN BTNBT BWABW CAFCF CANCA CHECH CHLCL CHNCN CIVCI CMRCM CODCD COGCG COLCO CRICR CUBCU CYPCY CZECZ DEUDE DJIDJ DNKDK DOMDO DZADZ ECUEC EGYEG ERIER ESPES ESTEE ETHET FINFI FJIFJ FRAFR GABGA GBRGB GEOGE GHAGH GINGN GMBGM GNBGW GNQGQ GRCGR GRLGL GTMGT GUYGY HNDHN HRVHR HTIHT HUNHU IDNID INDIN IRLIE IRNIR IRQIQ ISLIS ISRIL ITAIT JAMJM JORJO JPNJP KAZKZ KENKE KGZKG KHMKH KORKR KWTKW LAOLA LBNLB LBRLR LBYLY LKALK LSOLS LTULT LUXLU LVALV MARMA MDAMD MDGMG MEXMX MKDMK MLIML MMRMM MNEME MNGMN MOZMZ MRTMR MWIMW MYSMY NAMNA NERNE NGANG NICNI NLDNL NORNO NPLNP NZLNZ OMNOM PAKPK PANPA PERPE PHLPH PNGPG POLPL PRKKP PRTPT PRYPY QATQA ROURO RUSRU RWARW SAUSA SDNSD SSDSS SENSN SLBSB SLESL SLVSV SRBRS SURSR SVKSK SVNSI SWESE SWZSZ SYRSY TCDTD TGOTG THATH TJKTJ TKMTM TLSTL TTOTT TUNTN TURTR TWNTW TZATZ UGAUG UKRUA URYUY USAUS UZBUZ VENVE VNMVN VUTVU YEMYE ZAFZA ZMBZM ZWEZW'.split(' ').map(x=>[x.slice(0,3),x.slice(3)]));
+const flag=i=>{const c=C[i],a=c&&A2[c.id];return a?String.fromCodePoint(...[...a].map(ch=>127397+ch.charCodeAt(0))):null};
+const shuf=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a},FLAGPTS=50;let rights=3;
+const COL={ok:'#6ee7b7',bad:'#ff6b81',reveal:'#ffc14d',hl:'#ffe97a'};
+function draw(){
+  ctx.fillStyle='#0b2142';ctx.fillRect(0,0,TW,TH);
+  ctx.strokeStyle='rgba(120,170,230,.16)';ctx.lineWidth=1;ctx.beginPath();
+  for(let i=1;i<12;i++){const x=i*TW/12;ctx.moveTo(x,0);ctx.lineTo(x,TH)}for(let i=1;i<6;i++){const y=i*TH/6;ctx.moveTo(0,y);ctx.lineTo(TW,y)}ctx.stroke();
+  ctx.strokeStyle='#07142a';ctx.lineWidth=1.3;
+  C.forEach((c,i)=>{const s=states.get(i);ctx.fillStyle=!s?c.col:s[0]==='b'?'hsl('+((+s.slice(1)-1)*24+8)+',85%,55%)':COL[s];ctx.fill(c.path,'evenodd');ctx.stroke(c.path)});
+  texture.needsUpdate=true;
+}
+// three.js
+const cv=$('c'),R=new THREE.WebGLRenderer({canvas:cv,antialias:true});R.setPixelRatio(Math.min(devicePixelRatio,2));
+const scene=new THREE.Scene(),cam=new THREE.PerspectiveCamera(45,1,.1,100);
+const texture=new THREE.CanvasTexture(tex);texture.anisotropy=4;
+scene.add(new THREE.AmbientLight(0xffffff,.75));const sun=new THREE.DirectionalLight(0xffffff,.65);sun.position.set(-3,3,5);scene.add(sun);
+const pitch=new THREE.Group(),yaw=new THREE.Group(),globe=new THREE.Mesh(new THREE.SphereGeometry(1,96,64),new THREE.MeshLambertMaterial({map:texture}));
+yaw.add(globe);pitch.add(yaw);scene.add(pitch);yaw.rotation.y=-PI/2;
+const halo=new THREE.Mesh(new THREE.SphereGeometry(1.06,48,32),new THREE.MeshBasicMaterial({color:0x4aa8ff,transparent:true,opacity:.12,side:THREE.BackSide}));scene.add(halo);
+const sp=[];for(let i=0;i<500;i++){const v=new THREE.Vector3(Math.random()-.5,Math.random()-.5,Math.random()-.5).normalize().multiplyScalar(30);sp.push(v.x,v.y,v.z)}
+const sg=new THREE.BufferGeometry();sg.setAttribute('position',new THREE.Float32BufferAttribute(sp,3));scene.add(new THREE.Points(sg,new THREE.PointsMaterial({color:0xffffff,size:.08})));
+let base=3.2,dist=3.2;
+function fit(){R.setSize(innerWidth,innerHeight);cam.aspect=innerWidth/innerHeight;cam.updateProjectionMatrix();base=Math.max(3,2.75/Math.min(1,cam.aspect));dist=Math.min(Math.max(dist,1.5),base*1.4)}
+addEventListener('resize',fit);
+function resetView(){dist=base;faceTo(20,25)}
+function faceTo(lon,lat){goal={y:-PI/2-lon*PI/180,x:Math.max(-1.2,Math.min(1.2,lat*PI/180))}}
+// input
+const ptrs=new Map(),vel={x:0,y:0};let pinch=0;
+const pd=()=>{const a=[...ptrs.values()];return Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y)};
+cv.addEventListener('pointerdown',e=>{cv.setPointerCapture(e.pointerId);ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY,m:0});goal=null;vel.x=vel.y=0;if(ptrs.size===2)pinch=pd()});
+cv.addEventListener('pointermove',e=>{const p=ptrs.get(e.pointerId);if(!p)return;const dx=e.clientX-p.x,dy=e.clientY-p.y;p.m+=Math.abs(dx)+Math.abs(dy);p.x=e.clientX;p.y=e.clientY;
+  if(ptrs.size===1){const k=.0042*(dist-1)/2.2;vel.x=dx*k;vel.y=dy*k;yaw.rotation.y+=vel.x;pitch.rotation.x=Math.max(-1.25,Math.min(1.25,pitch.rotation.x+vel.y))}
+  else if(ptrs.size===2){const n=pd();dist=Math.min(Math.max(dist*pinch/n,1.5),base*1.4);pinch=n}});
+const up=e=>{const p=ptrs.get(e.pointerId);if(p&&p.m<8&&ptrs.size===1&&e.type==='pointerup')pick(e.clientX,e.clientY);ptrs.delete(e.pointerId)};
+cv.addEventListener('pointerup',up);cv.addEventListener('pointercancel',up);
+cv.addEventListener('wheel',e=>{e.preventDefault();dist=Math.min(Math.max(dist*(1+Math.sign(e.deltaY)*.1),1.5),base*1.4)},{passive:false});
+const ray=new THREE.Raycaster(),nd=new THREE.Vector2();
+function lookup(cx,cy){
+  nd.set(cx/innerWidth*2-1,-(cy/innerHeight)*2+1);ray.setFromCamera(nd,cam);const h=ray.intersectObject(globe)[0];if(!h)return -2;
+  const px=Math.min(TW-3,Math.max(2,Math.floor(h.uv.x*TW))),py=Math.min(TH-3,Math.max(2,Math.floor((1-h.uv.y)*TH))),d=ictx.getImageData(px-2,py-2,5,5).data;
+  for(let r=0;r<=2;r++)for(let dy=-r;dy<=r;dy++)for(let dx=-r;dx<=r;dx++){if(Math.max(Math.abs(dx),Math.abs(dy))!==r)continue;
+    const o=((dy+2)*5+dx+2)*4;if(d[o+3]!==255)continue;const v=d[o]+(d[o+1]<<8);if(v>0&&v<=C.length)return v-1}
+  return -1;
+}
+// game
+function msg(t,c){const m=$('msg');m.textContent=t;m.className=c||''}
+function setScore(){$('sc').innerHTML='Puan<br><b style="font-size:22px">'+score+'</b>'}
+function next(){q++;if(q>=ROUNDS)return end();tgt=order[q];att=0;busy=false;$('rd').innerHTML='Tur<br><b style="font-size:22px">'+(q+1)+'/'+ROUNDS+'</b>';msg('');if(mode==='name')askName();else $('tg').textContent=C[tgt].name}
+function end(){
+  st='over';$('nm').style.display='none';const nb=score>best;if(nb){best=score;try{localStorage.setItem(KEY(),best)}catch(e){}}
+  const r=score>=900?'Usta haritacı':score>=700?'Deneyimli kaptan':score>=450?'Meraklı kâşif':'Yeni turist';
+  $('t').textContent=r;$('m').textContent='Puanın: '+score+' / '+ROUNDS*100+(nb?'. Yeni kişisel rekor!':'. En iyi skorun: '+best+'.');
+  $('ov').style.display='flex';$('go').focus();$('tg').innerHTML='&nbsp;';msg('');
+}
+function start(md){mode=md||mode;best=0;try{best=+localStorage.getItem(KEY())||0}catch(e){}$('al').textContent=mode==='name'?'Bu ülkeyi adlandır':'Bul';$('nm').style.display='none';rights=3;states.clear();order=shuf(pool).slice(0,ROUNDS);q=-1;score=0;st='play';$('ov').style.display='none';setScore();draw();resetView();next()}
+function pick(x,y){
+  if(st!=='play'||busy||mode==='name')return;const i=lookup(x,y);
+  if(i===-2)return;if(i===-1){msg('Açık deniz. Bir ülke dene.','info');return}
+  if(states.has(i)&&states.get(i)[0]!=='b'){msg(C[i].name+' zaten bulundu.','info');return}
+  if(i===tgt){const p=PTS[att];score+=p;setScore();states.set(i,'ok');draw();msg('Doğru! +'+p,'ok');busy=true;setTimeout(next,1000);return}
+  const n=near(i,tgt);att++;states.set(i,'b'+n.c);draw();
+  const info=C[i].name+': yakınlık '+n.c+'/10 ('+(n.km<80?'komşu':'yaklaşık '+(Math.round(n.km/50)*50).toLocaleString('tr-TR')+' km uzakta')+')',left=PTS.length-att;
+  if(left<=0){msg(info+'. Hakkın bitti, cevap '+C[tgt].name+' idi.','info');reveal()}
+  else{msg(info+'. '+left+' hakkın kaldı.','bad');setTimeout(()=>{const s=states.get(i);if(s&&s[0]==='b'){states.delete(i);draw()}},1300)}
+}
+function near(a,b){
+  const A=C[a].v,B=C[b].v;let m=-1;
+  for(let i=0;i<A.length;i+=3){const x=A[i],y=A[i+1],z=A[i+2];for(let j=0;j<B.length;j+=3){const d=x*B[j]+y*B[j+1]+z*B[j+2];if(d>m)m=d}}
+  const km=Math.acos(Math.min(1,m))*6371,c=[80,300,700,1200,1800,2600,3600,5000,7000].findIndex(t=>km<t)+1;
+  return{c:c||10,km};
+}
+function askName(){
+  states.set(tgt,'hl');draw();dist=Math.max(1.6,base*.55);faceTo(C[tgt].lon,C[tgt].lat);$('tg').textContent='?';
+  const opts=shuf([tgt,...shuf(pool.filter(i=>i!==tgt)).slice(0,5)]),g=$('nm');g.innerHTML='';
+  opts.forEach(i=>{const b=document.createElement('button');b.textContent=C[i].name;b.onclick=()=>answerName(i,b);g.appendChild(b)});
+  g.style.display='grid';
+}
+function answerName(i,b){
+  if(busy||st!=='play'||b.disabled)return;const kids=[...$('nm').children];
+  if(i===tgt){const p=PTS[att];score+=p;setScore();states.set(tgt,'ok');draw();b.classList.add('good');kids.forEach(x=>x.disabled=true);msg('Doğru! +'+p,'ok');busy=true;setTimeout(next,1000);return}
+  att++;b.classList.add('badf');b.disabled=true;const left=PTS.length-att;
+  if(left<=0){kids.forEach(x=>{x.disabled=true;if(x.textContent===C[tgt].name)x.classList.add('good')});msg('Hakkın bitti, cevap '+C[tgt].name+' idi.','info');reveal()}
+  else msg(C[i].name+' değil. '+left+' hakkın kaldı.','bad');
+}
+function reveal(){busy=true;setTimeout(()=>{states.forEach((v,k)=>{if(v[0]==='b')states.delete(k)});states.set(tgt,'reveal');draw();faceTo(C[tgt].lon,C[tgt].lat)},500);setTimeout(next,2600)}
+function updFc(){const b=$('fc');b.textContent='Bayrak jokeri ('+rights+')';b.disabled=st!=='play'||busy||rights<=0||tgt<0||!flag(tgt)}
+function openFc(){
+  if($('fc').disabled)return;rights--;busy=true;
+  const opts=shuf([tgt,...shuf(pool.filter(i=>i!==tgt&&flag(i)&&flag(i)!==flag(tgt))).slice(0,3)]),g=$('fo');
+  $('fq').innerHTML=mode==='name'?'<b>Vurgulanan ülkenin</b><br>bayrağı hangisi?':'<b>'+C[tgt].name+'</b><br>ülkesinin bayrağı hangisi?';g.innerHTML='';
+  opts.forEach(i=>{const b=document.createElement('button');b.className='flag';b.textContent=flag(i);b.setAttribute('aria-label','Bayrak seçeneği');b.onclick=()=>answerFc(i,b);g.appendChild(b)});
+  $('fcm').style.display='flex';
+}
+function answerFc(i,b){
+  const ok=i===tgt,kids=[...$('fo').children];kids.forEach(x=>x.disabled=true);
+  b.classList.add(ok?'good':'badf');if(!ok)kids.forEach(x=>{if(x.textContent===flag(tgt))x.classList.add('good')});
+  kids.forEach(x=>x.style.opacity=1);
+  setTimeout(()=>{$('fcm').style.display='none';
+    if(ok){const pt=PTS[Math.min(att,PTS.length-1)];score+=pt;setScore();states.set(tgt,'ok');draw();msg('Doğru bayrak! '+C[tgt].name+' sayıldı, +'+pt,'ok');setTimeout(next,1000)}
+    else{msg('Yanlış bayrak. '+C[tgt].name+' kaçırıldı.','info');reveal()}
+  },1300);
+}
+$('fc').onclick=openFc;
+$('go').onclick=()=>start('find');$('go2').onclick=()=>start('name');$('rv').onclick=resetView;
+$('skip').onclick=()=>{if(st!=='play'||busy)return;msg('Pas geçildi. Cevap '+C[tgt].name+' idi.','info');reveal()};
+addEventListener('keydown',e=>{if(e.key==='Enter'&&st!=='play'&&$('go').style.display!=='none')start()});
+// loop
+const clock=new THREE.Clock();
+function loop(){
+  requestAnimationFrame(loop);const dt=Math.min(clock.getDelta(),.05);
+  if(goal){const dy=((goal.y-yaw.rotation.y+PI*3)%(2*PI))-PI;yaw.rotation.y+=dy*Math.min(1,dt*4);pitch.rotation.x+=(goal.x-pitch.rotation.x)*Math.min(1,dt*4);if(Math.abs(dy)<.002)goal=null}
+  else if(!ptrs.size){yaw.rotation.y+=vel.x;pitch.rotation.x=Math.max(-1.25,Math.min(1.25,pitch.rotation.x+vel.y));vel.x*=.93;vel.y*=.93;if(st!=='play'&&Math.abs(vel.x)<.0005)yaw.rotation.y+=dt*.12}
+  updFc();cam.position.z+=(dist-cam.position.z)*Math.min(1,dt*8);cam.lookAt(0,0,0);
+  R.render(scene,cam);
+}
+fit();dist=base;
+if(typeof Datamap==='undefined'||!Datamap.prototype.worldTopo)fail();
+else{build();draw();pitch.rotation.x=.4;cam.position.z=dist;loop()}
+</script></body></html>
